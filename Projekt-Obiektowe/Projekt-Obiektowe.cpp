@@ -9,35 +9,6 @@
 
 using namespace std;
 
-class WorkersTool
-{
-public:
-	string nazwa;
-	string field, value;
-
-	void init(string name)
-	{
-		this->nazwa = name;
-	}
-
-	void setEntry(string field, string value)
-	{
-		this->value = value;
-		this->field = field;
-	}
-
-	string getEntry(string field)
-	{
-
-	}
-
-	void redraw()
-	{
-		
-	}
-};
-
-
 class Pracownik
 {
 public:
@@ -66,7 +37,7 @@ class lista
 {
 public:
 	Pracownik member;
-	lista* next=nullptr;
+	lista* next = nullptr;
 };
 
 class Grupa
@@ -77,7 +48,7 @@ public:
 	lista* actual = new lista;
 	lista* current = new lista;
 	lista* first = new lista;
-	bool InitialWorker=false;
+	bool InitialWorker = false;
 
 
 
@@ -125,7 +96,6 @@ public:
 			previous = tmp;
 			tmp = tmp->next;
 		}
-		//cout << "Nie znaleziono pracownika" << endl;
 		return previous->member;
 	}
 
@@ -158,12 +128,12 @@ public:
 
 	void ShowGroup()
 	{
-		int counter=0;
+		int counter = 0;
 		lista* tmp = first;
 		cout << "Group " << name << endl;
 		while (tmp)
 		{
-			cout << 1+counter++<< ". " << tmp->member.imie << " "<< tmp->member.nazwisko << endl;
+			cout << 1 + counter++ << ". " << tmp->member.imie << " " << tmp->member.nazwisko << endl;
 			tmp = tmp->next;
 		}
 	}
@@ -174,13 +144,164 @@ public:
 		plik1 << "Group " << name << endl;
 		while (tmp)
 		{
-			plik1<< tmp->member.imie << " " << tmp->member.nazwisko << " " << tmp->member.wiek << endl;
+			plik1 << tmp->member.imie << " " << tmp->member.nazwisko << " " << tmp->member.wiek << endl;
 			tmp = tmp->next;
 		}
 	}
 };
 
 
+class WorkersTool : public Tool
+{
+public:
+	Pracownik SpisPracownikow[50];
+	Grupa SpisGrup[10];
+
+	int decision = 0, counter = 0, counter1 = 0, counter2 = 0, age, workerint, groupint;
+
+	bool looper = true;
+	string imie, nazwisko, name, surname, temp, napis = "Group";
+	Pracownik tmp;
+
+	fstream plik;
+	fstream plik1;
+
+	Backend* backend;
+
+	void setEntry(string field, string value)
+	{
+
+	}
+
+	string getEntry(string field)
+	{
+		return field;
+	}
+
+	void init(string file)
+	{
+		plik.open(file, ios::in);
+		if (plik.good() == true)
+		{
+			cout << "Uzyskano dostep do pliku!" << endl;
+			while (!plik.eof())
+			{
+				plik >> temp;
+				if (temp == napis)
+				{
+					plik >> temp;
+					SpisGrup[++counter1].name = temp;
+					cout << temp << endl;
+
+				}
+				else
+				{
+					plik >> nazwisko;
+					plik >> age;
+					cout << temp << " " << nazwisko << " " << age << endl;
+					SpisPracownikow[counter].init(temp, nazwisko, age);
+					SpisGrup[counter1].AddWorker(SpisPracownikow[counter]);
+					counter++;
+				}
+			}
+		}
+		else
+			cout << "Dostep do pliku zostal zabroniony!" << endl;
+		cout << endl << endl;
+	}
+
+	void redraw()
+	{
+		cout << "Choose what to do [1-4]" << endl << "1. Create New Worker" << endl << "2. Show All Workers" << endl << "3. Create New Group" << endl << "4. Add Worker To Group" << endl << "5. Delete worker" << endl << "6. Show Group" << endl << "7. Show Worker Groups" << "8. Show All Groups" << endl << "9. Save and Quit" << endl;
+		while (looper)
+		{
+			cin >> decision;
+			switch (decision)
+			{
+			case 1:
+				if (counter < 50)
+				{
+					cout << "Podaj imie: " << endl;
+					cin >> name;
+					cout << "Podaj nazwisko: " << endl;
+					cin >> surname;
+					cout << "Podaj wiek: " << endl;
+					cin >> age;
+					if (SpisGrup[0].IsIn(name, surname))
+					{
+						cout << "Pracownik juz istnieje" << endl;
+						break;
+					}
+					SpisPracownikow[counter].init(name, surname, age);
+					SpisGrup[0].AddWorker(SpisPracownikow[counter]);
+					cout << "Pracownik dodany: " << SpisPracownikow[counter].imie << " " << SpisPracownikow[counter].nazwisko << " " << SpisPracownikow[counter].wiek << endl;
+					counter++;
+				}
+				break;
+			case 2:
+				SpisGrup[0].ShowGroup();
+				break;
+			case 3:
+				cout << "Podaj nazwe grupy: " << endl;
+				cin >> SpisGrup[++counter1].name;
+				cout << "Grupa utworzona: " << SpisGrup[counter1].name << endl;
+				counter1++;
+				break;
+			case 4:
+				cout << "Podaj numer pracownika: " << endl;
+				cin >> workerint;
+				cout << "Podaj numer grupy: " << endl;
+				cin >> groupint;
+				if (SpisGrup[groupint].IsIn(SpisPracownikow[workerint - 1].imie, SpisPracownikow[workerint - 1].nazwisko))
+				{
+					cout << "Pracownik juz istnieje w tej grupie" << endl;
+					break;
+				}
+				SpisGrup[groupint].AddWorker(SpisPracownikow[workerint - 1]);
+				SpisGrup[groupint].ShowGroup();
+				break;
+			case 5:
+				cout << "Podaj imie pracownika: " << endl;
+				cin >> imie;
+				cout << "Podaj nazwisko pracownika: " << endl;
+				cin >> nazwisko;
+				for (int i = 0; i < counter1 + 1; i++)
+				{
+					tmp = SpisGrup[i].FindWorker(imie, nazwisko);
+					if (SpisGrup[i].IsIn(imie, nazwisko) == false)
+						continue;
+					SpisGrup[i].DeleteWorker(tmp);
+				}
+				break;
+			case 6:
+				cout << "Podaj numer grupy: " << endl;
+				cin >> groupint;
+				SpisGrup[groupint].ShowGroup();
+				break;
+			case 7:
+				cout << "Podaj numer pracownika: " << endl;
+				cin >> groupint;
+				SpisPracownikow[groupint].worker_groups();
+				break;
+			case 8:
+				for (int i = 0; i < counter1 + 1; i++)
+				{
+					SpisGrup[i].ShowGroup();
+				}
+				break;
+			case 9:
+				plik.close();
+				ofstream plik1("dane123.txt");
+				for (int i = 0; i < counter1 + 1; i++)
+					SpisGrup[i].Save(plik1);
+				plik1.close();
+				cout << "All Saved" << endl;
+				looper = false;
+				break;
+			}
+		}
+	}
+};
 
 
 int main()
@@ -197,165 +318,19 @@ int main()
 	switch (choice)
 	{
 	case 1:
-		//Backend mybackend;
 		break;
 	case 2:
-		//Backend mybackend;
 		break;
 	case 3:
-		//Backend mybackend;
 		break;
 	case 4:
-		//Backend mybackend;
 		break;
 	}*/
 	WorkersTool mytool;
 	//mybackend.tool = &mytool;
 	//mytool.backend = &mybackend;
 	//mybackend.start();
-	mytool.init("nazwa");
-
-	Pracownik SpisPracownikow[50];
-	Grupa SpisGrup[10];
-
-	int counter = 0;
-	int counter1 = 0;
-	int counter2 = 0;
-
-	bool looper = true;
-	string imie, nazwisko;
-	Pracownik tmp;
-
-
-
-	string name, surname;
-	int age, workerint, groupint;
-
-	fstream plik;
-	fstream plik1;
-	string temp,  napis = "Group";
-
-	SpisGrup[0].init("All_Workers");
-	plik.open("dane123.txt", ios::in);
-	if (plik.good() == true)
-	{
-		cout << "Uzyskano dostep do pliku!" << endl;
-		while (!plik.eof())
-		{
-			plik >> temp;
-			if (temp == napis)
-			{
-				plik >> temp;
-				SpisGrup[++counter1].name = temp;
-				cout << temp << endl;
-
-			}
-			else
-			{
-				plik >> nazwisko;
-				plik >> age;
-				cout << temp << " " << nazwisko << " " << age <<endl;
-				SpisPracownikow[counter].init(temp, nazwisko, age);
-				//if(!SpisGrup[0].IsIn(temp, nazwisko))
-					//SpisGrup[0].AddWorker(SpisPracownikow[counter]);
-				SpisGrup[counter1].AddWorker(SpisPracownikow[counter]);
-				counter++;
-			}
-		}
-	}
-	else
-		cout << "Dostep do pliku zostal zabroniony!" << endl;
-
-
-	cout << endl << endl;
-	int decision = 0;
-	cout << "Choose what to do [1-4]" << endl << "1. Create New Worker" << endl << "2. Show All Workers" << endl << "3. Create New Group" << endl << "4. Add Worker To Group" << endl << "5. Delete worker" << endl << "6. Show Group" << endl << "7. Show Worker Groups" << "8. Show All Groups" << endl << "9. Save and Quit" << endl;
-	while (looper)
-	{
-		cin >> decision;
-		switch (decision)
-		{
-		case 1:
-			if (counter < 50)
-			{
-				cout << "Podaj imie: " << endl;
-				cin >> name;
-				cout << "Podaj nazwisko: " << endl;
-				cin >> surname;
-				cout << "Podaj wiek: " << endl;
-				cin >> age;
-				if (SpisGrup[0].IsIn(name, surname))
-				{
-					cout << "Pracownik juz istnieje" << endl;
-					break;
-				}
-				SpisPracownikow[counter].init(name, surname, age);
-				SpisGrup[0].AddWorker(SpisPracownikow[counter]);
-				cout << "Pracownik dodany: " << SpisPracownikow[counter].imie << " " << SpisPracownikow[counter].nazwisko << " " << SpisPracownikow[counter].wiek << endl;
-				counter++;
-			}
-			break;
-		case 2:
-			SpisGrup[0].ShowGroup();
-			break;
-		case 3:
-			cout << "Podaj nazwe grupy: " << endl;
-			cin >> SpisGrup[++counter1].name;
-			cout << "Grupa utworzona: " << SpisGrup[counter1].name << endl;
-			counter1++;
-			break;
-		case 4:
-			cout << "Podaj numer pracownika: " << endl;
-			cin >> workerint;
-			cout << "Podaj numer grupy: " << endl;
-			cin >> groupint;
-			if (SpisGrup[groupint].IsIn(SpisPracownikow[workerint-1].imie, SpisPracownikow[workerint-1].nazwisko))
-			{
-				cout << "Pracownik juz istnieje w tej grupie" << endl;
-				break;
-			}
-			SpisGrup[groupint].AddWorker(SpisPracownikow[workerint - 1]);
-			SpisGrup[groupint].ShowGroup();
-			break;
-		case 5:
-			cout << "Podaj imie pracownika: " << endl;
-			cin >> imie;
-			cout << "Podaj nazwisko pracownika: " << endl;
-			cin >> nazwisko;
-			for (int i = 0; i < counter1 + 1; i++)
-			{
-				tmp = SpisGrup[i].FindWorker(imie, nazwisko);
-				if (SpisGrup[i].IsIn(imie, nazwisko) == false)
-					continue;
-				SpisGrup[i].DeleteWorker(tmp);
-			}
-			break;
-		case 6:
-			cout << "Podaj numer grupy: " << endl;
-			cin >> groupint;
-			SpisGrup[groupint].ShowGroup();
-			break;
-		case 7:
-			cout << "Podaj numer pracownika: " << endl;
-			cin >> groupint;
-			SpisPracownikow[groupint].worker_groups();
-			break;
-		case 8:
-			for (int i = 0; i < counter1 + 1; i++)
-			{
-				SpisGrup[i].ShowGroup();
-			}
-			break;
-		case 9:
-			plik.close();
-			ofstream plik1("dane123.txt");
-			for (int i = 0; i < counter1 + 1; i++)
-				SpisGrup[i].Save(plik1);
-			plik1.close();
-			cout << "All Saved" << endl;
-			looper = false;
-			break;
-		}	
-	}
+	mytool.init("dane123.txt");
+	mytool.redraw();
 	return 0;
 }

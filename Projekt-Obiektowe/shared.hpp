@@ -10,13 +10,13 @@ struct BindingString {
 };
 
 class Backend;
+class Tool;
 
 class Tool {
 public:
-    
     virtual void setEntry(std::string field, std::string value) = 0;
     virtual std::string getEntry(std::string field) = 0;
-    virtual void init() = 0;
+    virtual void init(std::string file) = 0;
     virtual void redraw() = 0;
     Backend* backend;
 };
