@@ -2,6 +2,7 @@
 #define Shared_hpp
 
 #include <functional>
+#include <vector>
 
 struct BindingString {
     std::string name;
@@ -13,12 +14,12 @@ class Backend;
 class Tool;
 
 class Tool {
-public:
+public:    
+    Backend* backend;
     virtual void setEntry(std::string field, std::string value) = 0;
     virtual std::string getEntry(std::string field) = 0;
-    virtual void init(std::string file) = 0;
+    virtual void init() = 0;
     virtual void redraw() = 0;
-    Backend* backend;
 };
 
 class Backend {

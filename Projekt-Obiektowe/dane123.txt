@@ -1,13 +1,15 @@
 Group All_Workers
-Piotr Derenowski 1
 Lucyna Derenowska 22
 Sandra Minczuk 33
 Rafal Minczuk 23
 Babcia Krysia 21
 Group przyjaciele
 Piotr Derenowski 1
-Lucyna Derenowska 22
 Sandra Minczuk 33
 Group inni
 Rafal Minczuk 23
 Babcia Krysia 21
+Sandra Minczuk 33
+Sandra Minczuk 33
+Sandra Minczuk 33
+Sandra Minczuk 33
