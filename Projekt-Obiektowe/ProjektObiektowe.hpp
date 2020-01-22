@@ -12,13 +12,17 @@ using namespace std;
 
 class Pracownik
 {
-public:
+private:
 	char imie[20];
 	char nazwisko[20];
 	int wiek;
+public:
 	int grupy[20];
 	int counter=0;
 
+    char* getName();
+    char* getSurname();
+    int getAge();
 	void init(char name[20], char surname[20], int age);
 	void worker_groups(int i, char name[20]);
 };
@@ -32,17 +36,20 @@ public:
 
 class Grupa
 {
-public:
-	char name[20];
-	lista* previous = new lista;
-	lista* actual = new lista;
-	lista* current = new lista;
-	lista* first = new lista;
-	bool InitialWorker = false;
+	private:
+		char name[20];
+	public:
+		lista* previous = new lista;
+		lista* actual = new lista;
+		lista* current = new lista;
+		lista* first = new lista;
+		bool InitialWorker = false;
 
 
 
 	void init(char name[20]);
+
+	char* getName();
 
 	void AddWorker(Pracownik worker);
 

@@ -23,10 +23,29 @@ void Pracownik::worker_groups(int i, char name[20])
         mvprintw(i+4, 30, "%d. %s", i, name);
 }
 
+char* Pracownik::getName()
+{
+    return imie;
+}
+
+char* Pracownik::getSurname()
+{
+    return nazwisko;
+}
+
+int Pracownik::getAge()
+{
+    return wiek;
+}
 
 void Grupa::init(char name[20])
 {
     strcpy(this->name, name);
+}
+
+char* Grupa::getName()
+{
+    return name;
 }
 
 void Grupa::AddWorker(Pracownik worker)
@@ -57,7 +76,7 @@ Pracownik Grupa::FindWorker(char name[20], char surname[20])
     lista* tmp = first;
     while (tmp)
     {
-        if (strcmp(name, tmp->member.imie) == 0 && strcmp(surname, tmp->member.nazwisko) == 0)
+        if (strcmp(name, tmp->member.getName()) == 0 && strcmp(surname, tmp->member.getSurname()) == 0)
         {
             actual = tmp;
             return tmp->member;
@@ -74,7 +93,7 @@ bool Grupa::IsIn(char name[20], char surname[20])
     lista* tmp = first;
     while (tmp)
     {
-        if (strcmp(name, tmp->member.imie) == 0 && strcmp(surname, tmp->member.nazwisko) == 0)
+        if (strcmp(name, tmp->member.getName()) == 0 && strcmp(surname, tmp->member.getSurname()) == 0)
         {
             return true;
             break;
@@ -100,10 +119,10 @@ void Grupa::ShowGroup(int number)
 {
     int counter = 1;
     lista* tmp = first;
-    mvprintw( 2, number*25, "Group %s", name );
+    mvprintw( 2, number*25, "Group %s", getName() );
     while (tmp)
     {
-        mvprintw(  counter+2, number*25, "%d. %s %s",  counter ,tmp->member.imie, tmp->member.nazwisko );
+        mvprintw(  counter+2, number*25, "%d. %s %s",  counter ,tmp->member.getName(), tmp->member.getSurname() );
         counter++;
         tmp = tmp->next;
     }
@@ -115,7 +134,7 @@ void Grupa::Save(ofstream& plik1)
     plik1 << "Group " << name << endl;
     while (tmp)
     {
-        plik1 << tmp->member.imie << " " << tmp->member.nazwisko << " " << tmp->member.wiek << endl;
+        plik1 << tmp->member.getName() << " " << tmp->member.getSurname() << " " << tmp->member.getAge()<< endl;
         tmp = tmp->next;
     }
 }
@@ -167,7 +186,7 @@ void WorkersTool::init()
             if (strcmp(temp, napis.c_str()) == 0)
             {
                 plik >> temp;
-                strcpy(SpisGrup[++counter1].name, temp);
+                strcpy(SpisGrup[++counter1].getName(), temp);
                // cout << SpisGrup[counter1].name << endl;
 
             }
@@ -186,7 +205,7 @@ void WorkersTool::init()
                 {
                     for(int i=0; i<counter; i++)
                     {
-                        if (strcmp(SpisPracownikow[i].imie, temp) == 0 && strcmp(SpisPracownikow[i].nazwisko, surname) == 0)
+                        if (strcmp(SpisPracownikow[i].getName(), temp) == 0 && strcmp(SpisPracownikow[i].getSurname(), surname) == 0)
                             {
                                 SpisGrup[counter1].AddWorker(SpisPracownikow[i]);
                                 SpisPracownikow[i].grupy[SpisPracownikow[i].counter++] = counter1;
@@ -227,11 +246,11 @@ void WorkersTool::redraw()
             }
             else
             {
-                mvprintw( i+2, 0, "%s %s", SpisPracownikow[i].imie, SpisPracownikow[i].nazwisko);
+                mvprintw( i+2, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
             }
         }
         attron( A_REVERSE );
-        mvprintw(reminder + 2, 0, "%s %s", SpisPracownikow[reminder].imie, SpisPracownikow[reminder].nazwisko);
+        mvprintw(reminder + 2, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
         attroff( A_REVERSE );
         workerint = reminder;
     }
@@ -255,11 +274,11 @@ void WorkersTool::redraw()
             }
             else
             {
-                mvprintw( i+2, 30, "%s", SpisGrup[i].name);
+                mvprintw( i+2, 30, "%s", SpisGrup[i].getName());
             }
         }
         attron( A_REVERSE );
-        mvprintw(reminder + 2, 30, "%s", SpisGrup[reminder].name);
+        mvprintw(reminder + 2, 30, "%s", SpisGrup[reminder].getName());
         attroff( A_REVERSE );
     }
 }
@@ -279,7 +298,7 @@ void WorkersTool::enter()
 
         if(possible3==true)
         {
-            if (SpisGrup[reminder].IsIn(SpisPracownikow[workerint].imie, SpisPracownikow[workerint].nazwisko))
+            if (SpisGrup[reminder].IsIn(SpisPracownikow[workerint].getName(), SpisPracownikow[workerint].getSurname()))
             {
                 mvprintw( counter+5, 0, "Pracownik istnieje juz w tej grupie");
                 return;
@@ -315,12 +334,12 @@ void WorkersTool::enter()
                 }
                 else
                 {
-                    mvprintw( i+2, 30, "%s", SpisGrup[i].name);
+                    mvprintw( i+2, 30, "%s", SpisGrup[i].getName());
                 }
                 
             }
             attron( A_REVERSE );
-            mvprintw(reminder + 2, 30, "%s", SpisGrup[reminder].name);
+            mvprintw(reminder + 2, 30, "%s", SpisGrup[reminder].getName());
             attroff( A_REVERSE );
         }
 
@@ -328,8 +347,8 @@ void WorkersTool::enter()
         {
             for (int i = 0; i < counter1 + 1; i++)
             {
-                tmp = SpisGrup[i].FindWorker(SpisPracownikow[i].imie, SpisPracownikow[i].nazwisko);
-                if (SpisGrup[i].IsIn(SpisPracownikow[i].imie, SpisPracownikow[i].nazwisko) == false)
+                tmp = SpisGrup[i].FindWorker(SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
+                if (SpisGrup[i].IsIn(SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname()) == false)
                     continue;
                 SpisGrup[i].DeleteWorker(tmp);
                 SpisPracownikow[workerint]=SpisPracownikow[counter--];
@@ -343,7 +362,7 @@ void WorkersTool::enter()
         {
             mvprintw(counter1+5, 0, "Worker is in groups:");
             for(int i = 0; i < SpisPracownikow[groupint].counter; i++)
-            SpisPracownikow[groupint].worker_groups(i+1, SpisGrup[SpisPracownikow[groupint].grupy[i]].name);
+            SpisPracownikow[groupint].worker_groups(i+1, SpisGrup[SpisPracownikow[groupint].grupy[i]].getName());
             possible6=false;
             possible=false;
         }
@@ -391,7 +410,7 @@ void WorkersTool::creat_worker()
     }
     SpisPracownikow[counter].init(name, surname, age);
     SpisGrup[0].AddWorker(SpisPracownikow[counter]);
-    mvprintw( 5, 0, "Pracownik dodany: %s %s %d", SpisPracownikow[counter].imie, SpisPracownikow[counter].nazwisko, SpisPracownikow[counter].wiek );
+    mvprintw( 5, 0, "Pracownik dodany: %s %s %d", SpisPracownikow[counter].getName(), SpisPracownikow[counter].getSurname(), SpisPracownikow[counter].getAge() );
     counter++;
 
 }
@@ -409,9 +428,9 @@ void WorkersTool::creat_group()
     mvprintw( 0, 0, "Tworzenie grupy" );
     mvprintw( 1, 0, "Podaj nazwe grupy: " );
     echo();
-    scanw("%s", SpisGrup[++counter1].name);
+    scanw("%s", SpisGrup[++counter1].getName());
     noecho();
-    mvprintw( 2, 0, "Grupa %s utworzona", SpisGrup[counter1].name);
+    mvprintw( 2, 0, "Grupa %s utworzona", SpisGrup[counter1].getName());
 }
 
 void WorkersTool::add_to_group()
@@ -433,11 +452,11 @@ void WorkersTool::add_to_group()
         }
         else
         {
-            mvprintw( i+2, 0, "%s %s", SpisPracownikow[i].imie, SpisPracownikow[i].nazwisko);
+            mvprintw( i+2, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
         }
     }
     attron( A_REVERSE );
-    mvprintw(reminder + 2, 0, "%s %s", SpisPracownikow[reminder].imie, SpisPracownikow[reminder].nazwisko);
+    mvprintw(reminder + 2, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
     attroff( A_REVERSE );
     workerint = reminder;
         
@@ -460,11 +479,11 @@ void WorkersTool::delete_worker()
         }
         else
         {
-            mvprintw( i+2, 0, "%s %s", SpisPracownikow[i].imie, SpisPracownikow[i].nazwisko);
+            mvprintw( i+2, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
         }
     }
     attron( A_REVERSE );
-    mvprintw(reminder + 2, 0, "%s %s", SpisPracownikow[reminder].imie, SpisPracownikow[reminder].nazwisko);
+    mvprintw(reminder + 2, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
     attroff( A_REVERSE );
     workerint = reminder;
 }
@@ -486,12 +505,12 @@ void WorkersTool::show_group()
         }
         else
         {
-            mvprintw( i+1, 30, "%s", SpisGrup[i].name);
+            mvprintw( i+1, 30, "%s", SpisGrup[i].getName());
         }
         
     }
     attron( A_REVERSE );
-    mvprintw(reminder + 1, 30, "%s", SpisGrup[reminder].name);
+    mvprintw(reminder + 1, 30, "%s", SpisGrup[reminder].getName());
     attroff( A_REVERSE );
 
 }
@@ -512,11 +531,11 @@ void WorkersTool::show_worker_groups()
         }
         else
         {
-            mvprintw( i+1, 0, "%s %s", SpisPracownikow[i].imie, SpisPracownikow[i].nazwisko);
+            mvprintw( i+1, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
         }
     }
     attron( A_REVERSE );
-    mvprintw(reminder + 1, 0, "%s %s", SpisPracownikow[reminder].imie, SpisPracownikow[reminder].nazwisko);
+    mvprintw(reminder + 1, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
     attroff( A_REVERSE );
     workerint = reminder;
 }
