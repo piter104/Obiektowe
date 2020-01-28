@@ -1,0 +1,1 @@
+g++ -o proba nice-like.cpp proba.cpp  ProjektObiektowe.cpp -lncurses

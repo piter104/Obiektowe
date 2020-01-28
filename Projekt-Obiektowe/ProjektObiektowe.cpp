@@ -117,13 +117,13 @@ void Grupa::DeleteWorker(Pracownik tmp)
 
 void Grupa::ShowGroup(int number)
 {
-    int counter = 1;
+    int counter10 = 1;
     lista* tmp = first;
     mvprintw( 2, number*25, "Group %s", getName() );
     while (tmp)
     {
-        mvprintw(  counter+2, number*25, "%d. %s %s",  counter ,tmp->member.getName(), tmp->member.getSurname() );
-        counter++;
+        mvprintw(  counter10+2, number*25, "%d. %s %s",  counter10 ,tmp->member.getName(), tmp->member.getSurname() );
+        counter10++;
         tmp = tmp->next;
     }
 }
@@ -142,43 +142,78 @@ void Grupa::Save(ofstream& plik1)
 
 void WorkersTool::setEntry(string value, string field)
 {
+    this->file = field;
     this->field = field;
 }
 
 string WorkersTool::getEntry(string field)
 {
-    return field;
+    if(strcmp(this->field.c_str(), field.c_str())==0)
+        return "YES";
 }
 
-void WorkersTool::initial()
+void WorkersTool::initial(int num)
 {
     if(backend)
     {
-    backend->bind("#nano#<LARROW>%Init",[&](){init();}, "Init File and program");
-    backend->bind("#nano#<UARROW>%Up",[&](){move_up();}, "Move cursor up");
-    backend->bind("#nano#<RARROW>%Enter",[&](){enter();}, "Enter");
-    backend->bind("#nano#<DARROW>%Down",[&](){move_down();}, "Move cursor down");
-    backend->bind("#nano#<F1>%Create New Worker",[&](){creat_worker();}, "Create New Worker");
-    backend->bind("#nano#<F2>%Show All Workers",[&](){show_workers();}, "Show All Workers");
-    backend->bind("#nano#<F3>%Create New Group",[&](){creat_group();}, "Create New Group");
-    backend->bind("#nano#<F4>%Add Worker To Group",[&](){add_to_group();}, "Add Worker To Group");
-    backend->bind("#nano#<F5>%Delete worker",[&](){delete_worker();}, "Delete worker");
-    backend->bind("#nano#<F6>%Show Group",[&](){show_group();}, "Show Group");
-    backend->bind("#nano#<F7>%Show Worker Groups",[&](){show_worker_groups();}, "Show Worker Groups");
-    backend->bind("#nano#<F8>%Show All Groups",[&](){show_all();}, "Show All Groups");
-    backend->bind("#nano#<F9>%Save and Quit",[&](){save_quit();}, "Save and Quit");
+        if(!num)
+        {
+            backend->bind("#nano#<LARROW>%Open file!Type a filename:${file}",[&](){init();}, "Init File and program");
+            backend->bind("#nano#<UARROW>%Up",[&](){move_up();}, "Move cursor up");
+            backend->bind("#nano#<RARROW>%Enter",[&](){enter();}, "Enter");
+            backend->bind("#nano#<DARROW>%Down",[&](){move_down();}, "Move cursor down");
+            backend->bind("#nano#<F1>%Create New Worker",[&](){creat_worker();}, "Create New Worker");
+            backend->bind("#nano#<F2>%Show All Workers",[&](){show_workers();}, "Show All Workers");
+            backend->bind("#nano#<F3>%Create New Group",[&](){creat_group();}, "Create New Group");
+            backend->bind("#nano#<F4>%Add Worker To Group",[&](){add_to_group();}, "Add Worker To Group");
+            backend->bind("#nano#<F5>%Delete worker",[&](){delete_worker();}, "Delete worker");
+            backend->bind("#nano#<F6>%Show Group",[&](){show_group();}, "Show Group");
+            backend->bind("#nano#<F7>%Show Worker Groups",[&](){show_worker_groups();}, "Show Worker Groups");
+            backend->bind("#nano#<F8>%Show All Groups",[&](){show_all();}, "Show All Groups");
+            backend->bind("#nano#<F9>%Save file!Type a filename:${file}",[&](){save_quit();}, "Save and Quit");
+        }
+        else if(num==1)
+        {
+            backend->bind("#nice#.File.Open${Type a filename:|file}", [&](){init();}, "Open file and load informations");
+            backend->bind("#nice#.Edit.Create New Worker", [&](){creat_worker();}, "Create New Worker");
+            backend->bind("<EDITION>", [&](){checker();}, "move");
+            backend->bind("#nice#.Show.Show All Workers", [&](){show_workers();}, "Show All Workers");
+            backend->bind("#nice#.Edit.Create Group", [&](){creat_group();}, "Create New Group");
+            backend->bind("#nice#.Edit.Add to Group", [&](){add_to_group();}, "Add Worker To Group");
+            backend->bind("#nice#.Edit.Delete Worker", [&](){delete_worker();}, "Delete worker");
+            backend->bind("#nice#.Show.Show Group", [&](){show_group();}, "Show Group");
+            backend->bind("#nice#.Show.Show Worker Groups",[&](){show_worker_groups();}, "Show Worker Groups");
+            backend->bind("#nice#.Show.Show All Groups",[&](){show_all();}, "Show All Groups");
+            backend->bind("#nice#.File.Save and quit ${Type a filename:|file}", [&](){save_quit();}, "Save and Quit");
+        }
+    }
+}
+void WorkersTool::checker()
+{
+    if(strcmp(this->field.c_str(), "<UARROW>")==0)
+    {
+                move_up();
+
+    }
+    else if(strcmp(this->field.c_str(), "<RARROW>")==0)
+           {
+                enter();
+
+    }
+    else if(strcmp(this->field.c_str(), "<DARROW>")==0)
+            {
+                move_down();
+
     }
 }
 
 void WorkersTool::init()
 {
-    file = this->field;
     int x=0;
     plik.open(file, ios::in);
     if (plik.good() == true)
     {
-        mvprintw(0, 0, "Uzyskano dostep do pliku!");
-        //cout << "Uzyskano dostep do pliku!" << endl;
+        mvprintw(1, 0, "Uzyskano dostep do pliku!");
         while (!plik.eof())
         {
             plik >> temp;
@@ -187,7 +222,6 @@ void WorkersTool::init()
             {
                 plik >> temp;
                 strcpy(SpisGrup[++counter1].getName(), temp);
-               // cout << SpisGrup[counter1].name << endl;
 
             }
             else
@@ -216,20 +250,20 @@ void WorkersTool::init()
         }
     }
     else
-         mvprintw(0, 0, "Nie uzyskano dostepu do pliku!");
-    //cout << endl << endl;
+         mvprintw(1, 0, "Nie uzyskano dostepu do pliku!");
+    strcpy(SpisGrup[0].getName(), "All_Workers");
 }
 
 void WorkersTool::redraw()
 {
-    for(int i=0; i<12; i++)
+    for(int i=1; i<18; i++)
     {
         move(i, 0);
         clrtoeol(); 
     }
     if(possible1==true)
     {
-        mvprintw( 1, 0, "Wybierz pracownika");
+        mvprintw( 2, 0, "Wybierz pracownika");
         if(groupint>counter)
         {
             groupint=counter;
@@ -246,11 +280,11 @@ void WorkersTool::redraw()
             }
             else
             {
-                mvprintw( i+2, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
+                mvprintw( i+3, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
             }
         }
         attron( A_REVERSE );
-        mvprintw(reminder + 2, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
+        mvprintw(reminder + 3, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
         attroff( A_REVERSE );
         workerint = reminder;
     }
@@ -274,11 +308,11 @@ void WorkersTool::redraw()
             }
             else
             {
-                mvprintw( i+2, 30, "%s", SpisGrup[i].getName());
+                mvprintw( i+3, 30, "%s", SpisGrup[i].getName());
             }
         }
         attron( A_REVERSE );
-        mvprintw(reminder + 2, 30, "%s", SpisGrup[reminder].getName());
+        mvprintw(reminder + 3, 30, "%s", SpisGrup[reminder].getName());
         attroff( A_REVERSE );
     }
 }
@@ -334,12 +368,12 @@ void WorkersTool::enter()
                 }
                 else
                 {
-                    mvprintw( i+2, 30, "%s", SpisGrup[i].getName());
+                    mvprintw( i+3, 30, "%s", SpisGrup[i].getName());
                 }
                 
             }
             attron( A_REVERSE );
-            mvprintw(reminder + 2, 30, "%s", SpisGrup[reminder].getName());
+            mvprintw(reminder + 3, 30, "%s", SpisGrup[reminder].getName());
             attroff( A_REVERSE );
         }
 
@@ -347,20 +381,22 @@ void WorkersTool::enter()
         {
             for (int i = 0; i < counter1 + 1; i++)
             {
-                tmp = SpisGrup[i].FindWorker(SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
-                if (SpisGrup[i].IsIn(SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname()) == false)
+                tmp = SpisGrup[i].FindWorker(SpisPracownikow[workerint].getName(), SpisPracownikow[workerint].getSurname());
+                if (SpisGrup[i].IsIn(SpisPracownikow[workerint].getName(), SpisPracownikow[workerint].getSurname()) == false)
                     continue;
                 SpisGrup[i].DeleteWorker(tmp);
-                SpisPracownikow[workerint]=SpisPracownikow[counter--];
             }
-            mvprintw(counter+2, 0, "Usunieto pracownika");
+             mvprintw( 1, 15,"%d", counter );
+            SpisPracownikow[workerint]=SpisPracownikow[counter-1];
+            counter--;
+            mvprintw(counter+5, 20, "Usunieto pracownika");
             possible4=false;
             possible=false;
         }
 
         if(possible6==true)
         {
-            mvprintw(counter1+5, 0, "Worker is in groups:");
+            mvprintw(1, 30, "Worker is in groups:");
             for(int i = 0; i < SpisPracownikow[groupint].counter; i++)
             SpisPracownikow[groupint].worker_groups(i+1, SpisGrup[SpisPracownikow[groupint].grupy[i]].getName());
             possible6=false;
@@ -390,27 +426,27 @@ void WorkersTool::move_down()
 void WorkersTool::creat_worker()
 {
     redraw();
-    mvprintw( 0, 0, "Dodawanie pracownika" );
-    mvprintw( 1, 0, "Podaj imie: " );
+    mvprintw( 1, 0, "Dodawanie pracownika" );
+    mvprintw( 2, 0, "Podaj imie: " );
     echo();
     scanw("%s", &name);
     noecho();
-    mvprintw( 2, 0, "Podaj nazwisko: " );
+    mvprintw( 3, 0, "Podaj nazwisko: " );
     echo();
     scanw("%s", &surname);
     noecho();
-    mvprintw( 3, 0, "Podaj wiek: : " );
+    mvprintw( 4, 0, "Podaj wiek: " );
     echo();
     scanw("%d", &age);
     noecho();
     if (SpisGrup[0].IsIn(name, surname))
     {
-        mvprintw( 5, 0, "Pracownik juz istnieje!" );
+        mvprintw( 6, 0, "Pracownik juz istnieje!" );
         return;
     }
     SpisPracownikow[counter].init(name, surname, age);
     SpisGrup[0].AddWorker(SpisPracownikow[counter]);
-    mvprintw( 5, 0, "Pracownik dodany: %s %s %d", SpisPracownikow[counter].getName(), SpisPracownikow[counter].getSurname(), SpisPracownikow[counter].getAge() );
+    mvprintw( 6, 0, "Pracownik dodany: %s %s %d", SpisPracownikow[counter].getName(), SpisPracownikow[counter].getSurname(), SpisPracownikow[counter].getAge() );
     counter++;
 
 }
@@ -418,32 +454,33 @@ void WorkersTool::creat_worker()
 void WorkersTool::show_workers()
 {
     redraw();
-    mvprintw( 0, 0, "Wszyscy pracownicy" );
+    mvprintw( 1, 0, "Wszyscy pracownicy" );
     SpisGrup[0].ShowGroup(0);
 }
 
 void WorkersTool::creat_group()
 {
         redraw();
-    mvprintw( 0, 0, "Tworzenie grupy" );
-    mvprintw( 1, 0, "Podaj nazwe grupy: " );
+    mvprintw( 1, 0, "Tworzenie grupy" );
+    mvprintw( 2, 0, "Podaj nazwe grupy: " );
     echo();
     scanw("%s", SpisGrup[++counter1].getName());
     noecho();
-    mvprintw( 2, 0, "Grupa %s utworzona", SpisGrup[counter1].getName());
+    redraw();
+    mvprintw( 3, 15, "Grupa %s utworzona", SpisGrup[counter1].getName());
 }
 
 void WorkersTool::add_to_group()
 {
     redraw();
-    mvprintw( 0, 0, "Dodawanie do grupy" );
+    mvprintw( 1, 0, "Dodawanie do grupy" );
     possible1=true;
     possible=true;
     possible2=false;
     possible3=true;
     workerint = 0;
     groupint = 0;
-    mvprintw( 1, 0, "Wybierz pracownika");
+    mvprintw( 2, 0, "Wybierz pracownika");
     for(int i = 0; i < counter; i++)
     {
         if( groupint == i)
@@ -452,11 +489,11 @@ void WorkersTool::add_to_group()
         }
         else
         {
-            mvprintw( i+2, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
+            mvprintw( i+3, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
         }
     }
     attron( A_REVERSE );
-    mvprintw(reminder + 2, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
+    mvprintw(reminder + 3, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
     attroff( A_REVERSE );
     workerint = reminder;
         
@@ -465,12 +502,12 @@ void WorkersTool::add_to_group()
 void WorkersTool::delete_worker()
 {   
     redraw();
-    mvprintw( 0, 0, "Usuwanie pracownika"); 
+    mvprintw( 1, 0, "Usuwanie pracownika"); 
     possible4=true;
     possible1=true;
     possible=true;
     groupint = 0;
-    mvprintw( 1, 0, "Wybierz pracownika");
+    mvprintw( 2, 0, "Wybierz pracownika");
     for(int i = 0; i < counter; i++)
     {
         if( groupint == i)
@@ -479,11 +516,11 @@ void WorkersTool::delete_worker()
         }
         else
         {
-            mvprintw( i+2, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
+            mvprintw( i+3, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
         }
     }
     attron( A_REVERSE );
-    mvprintw(reminder + 2, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
+    mvprintw(reminder + 3, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
     attroff( A_REVERSE );
     workerint = reminder;
 }
@@ -491,7 +528,6 @@ void WorkersTool::delete_worker()
 void WorkersTool::show_group()
 {
     redraw();
-     mvprintw( 0, 30, "Podejrzyj grupe"); 
     groupint = 0;
     possible=true;
     possible2=true;
@@ -505,24 +541,24 @@ void WorkersTool::show_group()
         }
         else
         {
-            mvprintw( i+1, 30, "%s", SpisGrup[i].getName());
+            mvprintw( i+3, 30, "%s", SpisGrup[i].getName());
         }
         
     }
     attron( A_REVERSE );
-    mvprintw(reminder + 1, 30, "%s", SpisGrup[reminder].getName());
+    mvprintw(reminder + 3, 30, "%s", SpisGrup[reminder].getName());
     attroff( A_REVERSE );
 
 }
 
 void WorkersTool::show_worker_groups()
 {
-    mvprintw(0, 0, "Podejrzyj grupy pracownika");
+    mvprintw(1, 0, "Podejrzyj grupy pracownika");
     groupint = 0;
     possible=true;
     possible1=true;
     possible6=true;
-    mvprintw( 1, 0, "Wybierz pracownika");
+    mvprintw( 2, 0, "Wybierz pracownika");
     for(int i = 0; i < counter; i++)
     {
         if( groupint == i)
@@ -531,11 +567,11 @@ void WorkersTool::show_worker_groups()
         }
         else
         {
-            mvprintw( i+1, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
+            mvprintw( i+3, 0, "%s %s", SpisPracownikow[i].getName(), SpisPracownikow[i].getSurname());
         }
     }
     attron( A_REVERSE );
-    mvprintw(reminder + 1, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
+    mvprintw(reminder + 3, 0, "%s %s", SpisPracownikow[reminder].getName(), SpisPracownikow[reminder].getSurname());
     attroff( A_REVERSE );
     workerint = reminder;
 }
@@ -543,7 +579,7 @@ void WorkersTool::show_worker_groups()
 void WorkersTool::show_all()
 {
         redraw();
-    mvprintw(0, 30, "Podejrzyj wszystkie grupy");
+    mvprintw(1, 30, "Podejrzyj wszystkie grupy");
     for (int i = 0; i < counter1 + 1; i++)
     {
         SpisGrup[i].ShowGroup(i);
@@ -553,10 +589,11 @@ void WorkersTool::show_all()
 void WorkersTool::save_quit()
 {
     redraw();
-    mvprintw(0, 0, "Wyszedles z programu, aby powrocic nacisnij <-");
+    this->field="IS_SAVED";
+    mvprintw(1, 0, "Wyszedles z programu, aby powrocic nacisnij <-");
     plik.close();
 
-    ofstream plik1(field, ofstream::trunc);
+    ofstream plik1(file, ofstream::trunc);
     if(!plik1.good())
         ofstream plik1(file, ofstream::trunc);
     for (int i = 0; i < counter1 + 1; i++)
@@ -566,5 +603,6 @@ void WorkersTool::save_quit()
     workerint=0;
     counter=0; 
     counter1=-1;
-    mvprintw( 1, 0, "All saved");
+    
+    mvprintw( 2, 0, "Zapisane!");
 }

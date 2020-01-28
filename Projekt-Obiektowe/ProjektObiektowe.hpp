@@ -82,8 +82,9 @@ class WorkersTool : public Tool
         Backend *backend=nullptr;
         void setEntry(string field, string value);
         string getEntry(string field);
-		void initial();
+		void initial(int num);
         void init();
+		void checker();
         void redraw();
 		void enter();
 		void move_up();
