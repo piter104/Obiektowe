@@ -4,4 +4,4 @@ My first object-oriented project. It is a program which you can use to save the 
 
 You have to install ncurses library on Linux to run this. 
 
-And then run script "./compile_nano" which wil create compiled execution file. Then just run created file like normal script wit "./proba" command
+And then run script "./compile_nano" which wil create compiled execution file. Then just run created file like normal script with "./proba" command.
